@@ -1,0 +1,1567 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Petualangan Gerak Lokomotor - PJOK Kelas III SD</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts: Fredoka & Nunito untuk tampilan ceria anak SD -->
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <!-- Tone.js untuk Efek Suara Edukatif -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.js"></script>
+    <style>
+        body {
+            font-family: 'Nunito', sans-serif;
+            background: linear-gradient(135deg, #e0f2fe 0%, #fef9c3 50%, #dcfce7 100%);
+            min-height: 100vh;
+            overflow-x: hidden;
+            user-select: none;
+        }
+        h1, h2, h3, .font-title {
+            font-family: 'Fredoka', sans-serif;
+        }
+        /* Animasi Karakter & Elemen */
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+        }
+        .animate-float {
+            animation: float 3s ease-in-out infinite;
+        }
+        @keyframes pulse-scale {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+        .animate-pulse-slow {
+            animation: pulse-scale 2.5s infinite;
+        }
+        /* Custom Button 3D Effect */
+        .btn-3d {
+            transition: all 0.15s ease;
+            box-shadow: 0 6px 0 rgba(0, 0, 0, 0.2);
+        }
+        .btn-3d:active {
+            transform: translateY(4px);
+            box-shadow: 0 2px 0 rgba(0, 0, 0, 0.2);
+        }
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f5f9;
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #38bdf8;
+            border-radius: 10px;
+        }
+        canvas {
+            touch-action: manipulation;
+        }
+    </style>
+</head>
+<body class="text-slate-800 flex flex-col justify-between">
+
+    <!-- HEADER / NAVBAR -->
+    <header class="bg-white/90 backdrop-blur-md shadow-md sticky top-0 z-40 border-b-4 border-sky-400">
+        <div class="max-w-6xl mx-auto px-4 py-3 flex flex-wrap items-center justify-between gap-2">
+            <!-- Logo & Judul -->
+            <div class="flex items-center gap-3 cursor-pointer" onclick="navigateTo('beranda')">
+                <div class="w-12 h-12 bg-gradient-to-tr from-sky-500 to-emerald-400 rounded-2xl flex items-center justify-center text-white text-2xl shadow-md transform -rotate-3">
+                    🏃‍♂️
+                </div>
+                <div>
+                    <h1 class="text-lg sm:text-xl font-bold text-sky-700 leading-tight">Petualangan Gerak Lokomotor</h1>
+                    <p class="text-xs font-semibold text-emerald-600">PJOK Kelas III SD (Fase B) • SD Negeri 3 Kelaten</p>
+                </div>
+            </div>
+
+            <!-- Tombol Navigasi Cepat & Kontrol Suara -->
+            <div class="flex items-center gap-2">
+                <button id="soundToggle" onclick="toggleSound()" class="p-2.5 rounded-xl bg-amber-100 hover:bg-amber-200 text-amber-700 font-bold text-sm flex items-center gap-1 transition" title="Suara Efek">
+                    <span id="soundIcon">🔊</span>
+                    <span class="hidden sm:inline" id="soundLabel">Suara Aktif</span>
+                </button>
+                <button onclick="openInfoModal()" class="p-2.5 rounded-xl bg-sky-100 hover:bg-sky-200 text-sky-700 font-bold text-sm flex items-center gap-1 transition">
+                    <span>ℹ️</span>
+                    <span class="hidden sm:inline">Identitas MPI</span>
+                </button>
+                <button onclick="navigateTo('beranda')" class="p-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white font-bold text-sm flex items-center gap-1 shadow transition">
+                    <span>🏠</span>
+                    <span class="hidden sm:inline">Beranda</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Menu Bar Utama -->
+        <nav class="bg-sky-50 border-t border-sky-100 px-2 py-2 overflow-x-auto">
+            <div class="max-w-5xl mx-auto flex justify-start sm:justify-center gap-2 min-w-max">
+                <button onclick="navigateTo('beranda')" id="nav-beranda" class="nav-btn px-4 py-1.5 rounded-full font-bold text-sm transition bg-sky-600 text-white shadow">
+                    🌟 Beranda
+                </button>
+                <button onclick="navigateTo('tujuan')" id="nav-tujuan" class="nav-btn px-4 py-1.5 rounded-full font-bold text-sm transition bg-white text-sky-700 hover:bg-sky-100">
+                    🎯 Tujuan Belajar
+                </button>
+                <button onclick="navigateTo('materi')" id="nav-materi" class="nav-btn px-4 py-1.5 rounded-full font-bold text-sm transition bg-white text-sky-700 hover:bg-sky-100">
+                    📚 Materi & Animasi
+                </button>
+                <button onclick="navigateTo('simulasi')" id="nav-simulasi" class="nav-btn px-4 py-1.5 rounded-full font-bold text-sm transition bg-white text-sky-700 hover:bg-sky-100">
+                    🎮 Simulasi Gerak
+                </button>
+                <button onclick="navigateTo('permainan')" id="nav-permainan" class="nav-btn px-4 py-1.5 rounded-full font-bold text-sm transition bg-white text-sky-700 hover:bg-sky-100">
+                    🏆 Gim Petualangan
+                </button>
+                <button onclick="navigateTo('evaluasi')" id="nav-evaluasi" class="nav-btn px-4 py-1.5 rounded-full font-bold text-sm transition bg-white text-sky-700 hover:bg-sky-100">
+                    📝 Kuis Evaluasi
+                </button>
+            </div>
+        </nav>
+    </header>
+
+    <!-- KONTEN UTAMA -->
+    <main class="flex-grow max-w-6xl w-full mx-auto px-4 py-6">
+
+        <!-- 1. HALAMAN BERANDA -->
+        <section id="sec-beranda" class="page-section space-y-6">
+            <div class="bg-white rounded-3xl p-6 sm:p-10 shadow-xl border-4 border-sky-300 relative overflow-hidden">
+                <!-- Dekorasi Latar -->
+                <div class="absolute -right-10 -top-10 w-44 h-44 bg-amber-200 rounded-full opacity-40 pointer-events-none"></div>
+                <div class="absolute -left-10 -bottom-10 w-52 h-52 bg-emerald-200 rounded-full opacity-40 pointer-events-none"></div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center relative z-10">
+                    <div class="lg:col-span-7 space-y-4 text-center lg:text-left">
+                        <span class="inline-block bg-amber-100 text-amber-800 font-extrabold px-4 py-1.5 rounded-full text-sm border-2 border-amber-300">
+                            ✨ Media Pembelajaran Interaktif (MPI) PJOK • Fase B
+                        </span>
+                        <h2 class="text-3xl sm:text-5xl font-bold text-sky-800 leading-tight">
+                            Ayo Berpetualang Mengenal <span class="text-emerald-600">Gerak Dasar Lokomotor!</span>
+                        </h2>
+                        <p class="text-slate-600 text-base sm:text-lg leading-relaxed">
+                            Halo anak-anak hebat Kelas III SD Negeri 3 Kelaten! Mari belajar berbagai gerak berpindah tempat seperti <strong>berjalan, berlari, melompat, dan meloncat</strong> dengan cara yang seru, sehat, dan menyenangkan!
+                        </p>
+
+                        <!-- Input Nama Siswa -->
+                        <div class="bg-sky-50 p-4 rounded-2xl border-2 border-sky-200 max-w-md mx-auto lg:mx-0">
+                            <label for="studentNameInput" class="block text-sm font-bold text-sky-800 mb-1">Masukkan Namamu Sebelum Berpetualang:</label>
+                            <div class="flex gap-2">
+                                <input type="text" id="studentNameInput" placeholder="Contoh: Budi Santoso" class="w-full px-4 py-2.5 rounded-xl border-2 border-sky-300 focus:outline-none focus:border-sky-500 font-bold text-slate-700">
+                                <button onclick="saveStudentName()" class="btn-3d bg-emerald-500 hover:bg-emerald-600 text-white font-bold px-5 py-2.5 rounded-xl whitespace-nowrap">
+                                    Simpan
+                                </button>
+                            </div>
+                            <p id="greetingText" class="text-xs font-bold text-emerald-700 mt-2 hidden">Halo! Selamat belajar, Petualang Cilik!</p>
+                        </div>
+
+                        <div class="pt-2 flex flex-wrap justify-center lg:justify-start gap-3">
+                            <button onclick="navigateTo('materi')" class="btn-3d bg-sky-500 hover:bg-sky-600 text-white font-bold text-lg px-7 py-3.5 rounded-2xl flex items-center gap-2">
+                                🚀 Mulai Belajar Sekarang
+                            </button>
+                            <button onclick="navigateTo('permainan')" class="btn-3d bg-amber-400 hover:bg-amber-500 text-amber-950 font-bold text-lg px-6 py-3.5 rounded-2xl flex items-center gap-2">
+                                🎮 Mainkan Gim
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Ilustrasi SVG Karakter Anak Berolahraga -->
+                    <div class="lg:col-span-5 flex justify-center">
+                        <div class="bg-gradient-to-b from-sky-100 to-emerald-100 p-6 rounded-3xl border-4 border-white shadow-lg animate-float w-full max-w-sm">
+                            <svg viewBox="0 0 300 260" class="w-full h-auto">
+                                <!-- Matahari -->
+                                <circle cx="245" cy="45" r="24" fill="#FBBF24"/>
+                                <g stroke="#F59E0B" stroke-width="3" stroke-linecap="round">
+                                    <line x1="245" y1="10" x2="245" y2="16"/>
+                                    <line x1="245" y1="74" x2="245" y2="80"/>
+                                    <line x1="210" y1="45" x2="216" y2="45"/>
+                                    <line x1="274" y1="45" x2="280" y2="45"/>
+                                </g>
+                                <!-- Awan -->
+                                <path d="M40 55 Q50 40 65 45 Q80 35 95 50 Q110 50 108 65 L35 65 Q28 58 40 55 Z" fill="#FFFFFF"/>
+                                <!-- Rumput / Lapangan -->
+                                <rect x="10" y="210" width="280" height="35" rx="15" fill="#4ADE80"/>
+                                <ellipse cx="150" cy="218" rx="70" ry="8" fill="#16A34A" opacity="0.4"/>
+                                <!-- Anak Berlari / Melompat Gembira -->
+                                <!-- Kaki Kiri -->
+                                <path d="M135 165 L110 195 L95 190" stroke="#1E3A8A" stroke-width="12" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+                                <ellipse cx="92" cy="190" rx="12" ry="7" fill="#EF4444"/>
+                                <!-- Kaki Kanan -->
+                                <path d="M160 165 L185 188 L202 180" stroke="#1E3A8A" stroke-width="12" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+                                <ellipse cx="205" cy="180" rx="12" ry="7" fill="#EF4444"/>
+                                <!-- Badan / Kaos Olahraga -->
+                                <rect x="128" y="110" width="44" height="60" rx="18" fill="#0284C7"/>
+                                <path d="M128 135 L172 135" stroke="#38BDF8" stroke-width="6"/>
+                                <!-- Tangan Kiri -->
+                                <path d="M130 120 L98 98" stroke="#FDBA74" stroke-width="11" stroke-linecap="round"/>
+                                <!-- Tangan Kanan -->
+                                <path d="M170 120 L202 95" stroke="#FDBA74" stroke-width="11" stroke-linecap="round"/>
+                                <!-- Kepala -->
+                                <circle cx="150" cy="80" r="28" fill="#FDBA74"/>
+                                <!-- Rambut & Ikat Kepala -->
+                                <path d="M122 75 C122 45, 178 45, 178 75 C170 62, 130 62, 122 75 Z" fill="#1E293B"/>
+                                <rect x="122" y="66" width="56" height="7" rx="3" fill="#EF4444"/>
+                                <!-- Wajah Senyum -->
+                                <circle cx="141" cy="80" r="3" fill="#1E293B"/>
+                                <circle cx="159" cy="80" r="3" fill="#1E293B"/>
+                                <path d="M142 90 Q150 98 158 90" stroke="#1E293B" stroke-width="3" stroke-linecap="round" fill="none"/>
+                                <!-- Pipi Merona -->
+                                <circle cx="134" cy="86" r="4" fill="#F87171" opacity="0.6"/>
+                                <circle cx="166" cy="86" r="4" fill="#F87171" opacity="0.6"/>
+                            </svg>
+                            <div class="text-center mt-2">
+                                <span class="bg-white/90 text-sky-800 text-xs font-extrabold px-3 py-1 rounded-full shadow-sm">
+                                    "Bergerak Aktif, Tubuh Sehat & Ceria!"
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Kartu Menu Utama -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                <div onclick="navigateTo('tujuan')" class="cursor-pointer bg-white hover:bg-sky-50 p-6 rounded-3xl shadow-md border-b-8 border-sky-400 transition transform hover:-translate-y-1">
+                    <div class="w-14 h-14 bg-sky-100 text-sky-600 rounded-2xl flex items-center justify-center text-3xl mb-4">🎯</div>
+                    <h3 class="text-xl font-bold text-slate-800 mb-1">1. Tujuan Belajar</h3>
+                    <p class="text-sm text-slate-600">Capaian pembelajaran Fase B dan tujuan yang akan kamu kuasai.</p>
+                </div>
+
+                <div onclick="navigateTo('materi')" class="cursor-pointer bg-white hover:bg-emerald-50 p-6 rounded-3xl shadow-md border-b-8 border-emerald-400 transition transform hover:-translate-y-1">
+                    <div class="w-14 h-14 bg-emerald-100 text-emerald-600 rounded-2xl flex items-center justify-center text-3xl mb-4">📚</div>
+                    <h3 class="text-xl font-bold text-slate-800 mb-1">2. Materi & Animasi</h3>
+                    <p class="text-sm text-slate-600">Penjelasan jalan, lari, lompat, dan loncat disertai animasi gerak.</p>
+                </div>
+
+                <div onclick="navigateTo('simulasi')" class="cursor-pointer bg-white hover:bg-amber-50 p-6 rounded-3xl shadow-md border-b-8 border-amber-400 transition transform hover:-translate-y-1">
+                    <div class="w-14 h-14 bg-amber-100 text-amber-600 rounded-2xl flex items-center justify-center text-3xl mb-4">🕹️</div>
+                    <h3 class="text-xl font-bold text-slate-800 mb-1">3. Simulasi Gerak</h3>
+                    <p class="text-sm text-slate-600">Atur kecepatan dan jenis gerak lokomotor secara langsung pada lintasan!</p>
+                </div>
+
+                <div onclick="navigateTo('evaluasi')" class="cursor-pointer bg-white hover:bg-purple-50 p-6 rounded-3xl shadow-md border-b-8 border-purple-400 transition transform hover:-translate-y-1">
+                    <div class="w-14 h-14 bg-purple-100 text-purple-600 rounded-2xl flex items-center justify-center text-3xl mb-4">🏅</div>
+                    <h3 class="text-xl font-bold text-slate-800 mb-1">4. Kuis & Sertifikat</h3>
+                    <p class="text-sm text-slate-600">Uji pemahamanmu dan dapatkan Piagam Bintang Lokomotor!</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- 2. HALAMAN TUJUAN PEMBELAJARAN -->
+        <section id="sec-tujuan" class="page-section hidden space-y-6">
+            <div class="bg-white rounded-3xl p-6 sm:p-8 shadow-xl border-4 border-sky-300">
+                <div class="flex items-center gap-3 mb-6">
+                    <span class="text-4xl">🎯</span>
+                    <div>
+                        <h2 class="text-2xl sm:text-3xl font-bold text-sky-800">Tujuan Pembelajaran & Capaian Fase B</h2>
+                        <p class="text-slate-500 text-sm font-semibold">Mata Pelajaran PJOK • Kelas III Sekolah Dasar</p>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="bg-sky-50 p-6 rounded-2xl border-2 border-sky-200 space-y-3">
+                        <h3 class="text-lg font-bold text-sky-800 flex items-center gap-2">
+                            <span>📘</span> Capaian Pembelajaran (Fase B)
+                        </h3>
+                        <p class="text-slate-700 leading-relaxed text-sm sm:text-base">
+                            Pada akhir Fase B, peserta didik dapat menunjukkan kemampuan dalam mempraktikkan variasi dan kombinasi aktivitas pola gerak dasar (lokomotor, non-lokomotor, dan manipulatif) secara mandiri serta memahami prosedur geraknya dengan benar.
+                        </p>
+                    </div>
+
+                    <div class="bg-emerald-50 p-6 rounded-2xl border-2 border-emerald-200 space-y-3">
+                        <h3 class="text-lg font-bold text-emerald-800 flex items-center gap-2">
+                            <span>🌟</span> Tujuan Pembelajaran Hari Ini
+                        </h3>
+                        <ul class="space-y-2 text-slate-700 text-sm sm:text-base">
+                            <li class="flex items-start gap-2">
+                                <span class="text-emerald-600 font-bold">✔</span>
+                                <span>Menjelaskan pengertian <strong>gerak dasar lokomotor</strong> dengan bahasa sendiri.</span>
+                            </li>
+                            <li class="flex items-start gap-2">
+                                <span class="text-emerald-600 font-bold">✔</span>
+                                <span>Membedakan gerak <strong>berjalan, berlari, melompat, dan meloncat</strong>.</span>
+                            </li>
+                            <li class="flex items-start gap-2">
+                                <span class="text-emerald-600 font-bold">✔</span>
+                                <span>Mengidentifikasi sikap tubuh yang benar dan aman saat melakukan variasi gerak lokomotor.</span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="mt-6 bg-amber-50 p-5 rounded-2xl border-2 border-amber-200 flex flex-col sm:flex-row items-center justify-between gap-4">
+                    <div class="flex items-center gap-3">
+                        <span class="text-3xl">💡</span>
+                        <p class="text-sm sm:text-base font-bold text-amber-900">
+                            Sudah siap mengenal macam-macam gerak berpindah tempat? Ayo lanjut ke bagian Materi & Animasi!
+                        </p>
+                    </div>
+                    <button onclick="navigateTo('materi')" class="btn-3d bg-sky-500 hover:bg-sky-600 text-white font-bold px-6 py-2.5 rounded-xl whitespace-nowrap">
+                        Lanjut ke Materi ➡️
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- 3. HALAMAN MATERI & ANIMASI INTERAKTIF -->
+        <section id="sec-materi" class="page-section hidden space-y-6">
+            <!-- Pengantar Gerak Lokomotor -->
+            <div class="bg-white rounded-3xl p-6 sm:p-8 shadow-xl border-4 border-emerald-300">
+                <div class="flex flex-col md:flex-row items-center justify-between gap-4 border-b-2 border-slate-100 pb-5 mb-6">
+                    <div>
+                        <span class="bg-emerald-100 text-emerald-800 text-xs font-extrabold px-3 py-1 rounded-full">MATERI INTI</span>
+                        <h2 class="text-2xl sm:text-3xl font-bold text-emerald-800 mt-1">Apa Itu Gerak Dasar Lokomotor?</h2>
+                    </div>
+                    <div class="bg-amber-100 px-4 py-2 rounded-2xl border border-amber-300 text-amber-900 font-bold text-sm">
+                        🔑 Kata Kunci: <u>Berpindah Tempat</u>
+                    </div>
+                </div>
+
+                <p class="text-slate-700 text-base sm:text-lg leading-relaxed bg-emerald-50/70 p-4 rounded-2xl border border-emerald-200 mb-6">
+                    <strong>Gerak dasar lokomotor</strong> adalah gerakan tubuh yang ditandai dengan adanya <strong>perpindahan tempat</strong> dari satu titik ke titik lainnya. Contohnya adalah berjalan, berlari, melompat, dan meloncat.
+                </p>
+
+                <!-- Tab Pilihan Jenis Gerak -->
+                <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
+                    <button onclick="selectMateri('jalan')" id="tab-jalan" class="materi-tab p-4 rounded-2xl border-2 border-sky-500 bg-sky-500 text-white font-bold text-center shadow transition">
+                        <div class="text-3xl mb-1">🚶‍♂️</div>
+                        <div>1. Berjalan</div>
+                    </button>
+                    <button onclick="selectMateri('lari')" id="tab-lari" class="materi-tab p-4 rounded-2xl border-2 border-slate-200 bg-slate-50 hover:bg-sky-50 text-slate-700 font-bold text-center transition">
+                        <div class="text-3xl mb-1">🏃‍♂️</div>
+                        <div>2. Berlari</div>
+                    </button>
+                    <button onclick="selectMateri('lompat')" id="tab-lompat" class="materi-tab p-4 rounded-2xl border-2 border-slate-200 bg-slate-50 hover:bg-sky-50 text-slate-700 font-bold text-center transition">
+                        <div class="text-3xl mb-1">🦘</div>
+                        <div>3. Melompat</div>
+                    </button>
+                    <button onclick="selectMateri('loncat')" id="tab-loncat" class="materi-tab p-4 rounded-2xl border-2 border-slate-200 bg-slate-50 hover:bg-sky-50 text-slate-700 font-bold text-center transition">
+                        <div class="text-3xl mb-1">🐸</div>
+                        <div>4. Meloncat</div>
+                    </button>
+                </div>
+
+                <!-- Konten Detail & Canvas Animasi Gerak -->
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-center bg-slate-50 p-5 rounded-3xl border-2 border-slate-200">
+                    <!-- Kiri: Penjelasan Cara Melakukan -->
+                    <div class="lg:col-span-6 space-y-4">
+                        <div class="inline-block px-3 py-1 rounded-full text-xs font-extrabold bg-sky-200 text-sky-900" id="materiBadge">
+                            GERAK DASAR 1
+                        </div>
+                        <h3 class="text-2xl font-bold text-slate-800" id="materiTitle">Berjalan (Walking)</h3>
+                        <p class="text-slate-600 leading-relaxed" id="materiDesc">
+                            Berjalan adalah gerakan melangkahkan kaki secara bergantian dengan salah satu kaki selalu menyentuh tanah.
+                        </p>
+                        <div class="bg-white p-4 rounded-2xl border border-slate-200 space-y-2">
+                            <h4 class="font-bold text-sky-700 text-sm">📋 Cara Melakukan yang Benar:</h4>
+                            <ul id="materiSteps" class="list-disc list-inside text-sm text-slate-700 space-y-1.5">
+                                <li>Pandangan lurus ke depan, badan tegak.</li>
+                                <li>Langkahkan kaki kanan dan kiri secara bergantian.</li>
+                                <li>Ayunkan lengan berlawanan dengan langkah kaki secara alami.</li>
+                                <li>Tumit kaki menyentuh tanah terlebih dahulu.</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- Kanan: Kotak Animasi Interaktif -->
+                    <div class="lg:col-span-6">
+                        <div class="bg-gradient-to-b from-sky-200 to-sky-100 rounded-2xl p-3 border-4 border-white shadow-inner relative">
+                            <canvas id="materiCanvas" class="w-full h-64 rounded-xl bg-sky-100"></canvas>
+                            <div class="flex justify-between items-center mt-2 px-2">
+                                <span class="text-xs font-bold text-sky-800" id="animCaption">Animasi: Gerak Berjalan Santai</span>
+                                <button onclick="toggleMateriPause()" id="btnPauseMateri" class="bg-white hover:bg-sky-50 text-sky-700 text-xs font-bold px-3 py-1.5 rounded-lg shadow">
+                                    ⏸️ Jeda Animasi
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Perbedaan Penting Lompat vs Loncat -->
+                <div class="mt-6 bg-amber-50 border-2 border-amber-300 rounded-2xl p-5">
+                    <h4 class="font-bold text-amber-900 text-lg mb-2 flex items-center gap-2">
+                        <span>🤔</span> Tahukah Kamu Perbedaan Melompat dan Meloncat?
+                    </h4>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
+                        <div class="bg-white p-3.5 rounded-xl border border-amber-200">
+                            <strong class="text-sky-700 text-base">🦘 Melompat:</strong>
+                            <p class="text-slate-600 mt-1">Gerakan menolakkan tubuh ke depan atau ke atas menggunakan <strong>SATU KAKI</strong> sebagai tumpuan (contoh: lompat jauh, lompat rintangan).</p>
+                        </div>
+                        <div class="bg-white p-3.5 rounded-xl border border-amber-200">
+                            <strong class="text-emerald-700 text-base">🐸 Meloncat:</strong>
+                            <p class="text-slate-600 mt-1">Gerakan menolakkan tubuh ke atas atau ke depan menggunakan <strong>DUA KAKI BERSAMAAN</strong> sebagai tumpuan (contoh: loncat katak, loncat tali).</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mt-6 flex justify-end">
+                    <button onclick="navigateTo('simulasi')" class="btn-3d bg-emerald-500 hover:bg-emerald-600 text-white font-bold px-6 py-3 rounded-2xl">
+                        Coba Simulasi Interaktif ➡️
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- 4. HALAMAN SIMULASI GERAK LOKOMOTOR -->
+        <section id="sec-simulasi" class="page-section hidden space-y-6">
+            <div class="bg-white rounded-3xl p-6 sm:p-8 shadow-xl border-4 border-amber-300">
+                <div class="flex flex-wrap items-center justify-between gap-2 mb-4">
+                    <div>
+                        <span class="bg-amber-100 text-amber-800 text-xs font-extrabold px-3 py-1 rounded-full">LABORATORIUM GERAK</span>
+                        <h2 class="text-2xl sm:text-3xl font-bold text-slate-800 mt-1">Simulasi Lintasan Gerak Lokomotor</h2>
+                    </div>
+                    <div class="bg-sky-100 text-sky-800 font-bold px-4 py-2 rounded-xl text-sm">
+                        Jarak Tempuh: <span id="simDistance" class="text-sky-600 text-lg">0</span> meter
+                    </div>
+                </div>
+
+                <p class="text-slate-600 text-sm sm:text-base mb-4">
+                    Pilih jenis gerakan di bawah ini dan amati bagaimana posisi kaki, ayunan tangan, serta kecepatan perpindahan tempat karakter di lintasan olahraga!
+                </p>
+
+                <!-- Area Canvas Simulasi -->
+                <div class="relative rounded-3xl overflow-hidden border-4 border-sky-400 shadow-lg bg-sky-200">
+                    <canvas id="simCanvas" class="w-full h-72 sm:h-80 block"></canvas>
+                    
+                    <!-- Indikator Status di atas Canvas -->
+                    <div class="absolute top-3 left-3 bg-white/90 backdrop-blur px-3 py-1.5 rounded-xl shadow text-xs sm:text-sm font-bold text-slate-800">
+                        Status Gerak: <span id="simStatusText" class="text-emerald-600">Berjalan (1 Kaki Selalu di Tanah)</span>
+                    </div>
+                </div>
+
+                <!-- Panel Kontrol Simulasi -->
+                <div class="mt-6 bg-slate-50 p-5 rounded-2xl border-2 border-slate-200">
+                    <div class="grid grid-cols-2 sm:grid-cols-5 gap-3">
+                        <button onclick="setSimAction('diam')" id="sim-btn-diam" class="sim-ctrl-btn btn-3d bg-slate-200 text-slate-800 font-bold py-3 px-4 rounded-xl text-sm">
+                            🧍 Berdiri Siap
+                        </button>
+                        <button onclick="setSimAction('jalan')" id="sim-btn-jalan" class="sim-ctrl-btn btn-3d bg-sky-500 text-white font-bold py-3 px-4 rounded-xl text-sm">
+                            🚶‍♂️ Berjalan
+                        </button>
+                        <button onclick="setSimAction('lari')" id="sim-btn-lari" class="sim-ctrl-btn btn-3d bg-emerald-500 text-white font-bold py-3 px-4 rounded-xl text-sm">
+                            🏃‍♂️ Berlari Cepat
+                        </button>
+                        <button onclick="setSimAction('lompat')" id="sim-btn-lompat" class="sim-ctrl-btn btn-3d bg-amber-500 text-white font-bold py-3 px-4 rounded-xl text-sm">
+                            🦘 Lompat (1 Kaki)
+                        </button>
+                        <button onclick="setSimAction('loncat')" id="sim-btn-loncat" class="sim-ctrl-btn btn-3d bg-purple-500 text-white font-bold py-3 px-4 rounded-xl text-sm col-span-2 sm:col-span-1">
+                            🐸 Loncat (2 Kaki)
+                        </button>
+                    </div>
+
+                    <div class="mt-4 pt-4 border-t border-slate-200 flex flex-wrap items-center justify-between gap-4">
+                        <div class="text-xs sm:text-sm text-slate-600 font-semibold" id="simExplanation">
+                            💡 <strong>Analisis Gerak:</strong> Saat berjalan, salah satu telapak kaki selalu menapak pada lintasan sebelum kaki lainnya diangkat.
+                        </div>
+                        <button onclick="resetSimDistance()" class="text-xs font-bold bg-rose-100 hover:bg-rose-200 text-rose-700 px-3 py-1.5 rounded-lg">
+                            🔄 Ulangi Jarak
+                        </button>
+                    </div>
+                </div>
+
+                <div class="mt-6 flex justify-end">
+                    <button onclick="navigateTo('permainan')" class="btn-3d bg-amber-500 hover:bg-amber-600 text-white font-bold px-6 py-3 rounded-2xl">
+                        Mainkan Gim Petualangan ➡️
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- 5. HALAMAN PERMAINAN EDUKATIF: PETUALANGAN LOMPAT RINTANGAN -->
+        <section id="sec-permainan" class="page-section hidden space-y-6">
+            <div class="bg-white rounded-3xl p-6 sm:p-8 shadow-xl border-4 border-purple-300">
+                <div class="flex flex-wrap items-center justify-between gap-3 mb-4">
+                    <div>
+                        <span class="bg-purple-100 text-purple-800 text-xs font-extrabold px-3 py-1 rounded-full">GIM INTERAKTIF PJOK</span>
+                        <h2 class="text-2xl sm:text-3xl font-bold text-purple-900 mt-1">Petualangan Lari & Lompat Rintangan</h2>
+                    </div>
+                    <div class="flex gap-3">
+                        <div class="bg-amber-100 border-2 border-amber-300 px-4 py-1.5 rounded-2xl text-center">
+                            <div class="text-xs font-bold text-amber-800">SKOR</div>
+                            <div class="text-xl font-extrabold text-amber-600" id="gameScore">0</div>
+                        </div>
+                        <div class="bg-emerald-100 border-2 border-emerald-300 px-4 py-1.5 rounded-2xl text-center">
+                            <div class="text-xs font-bold text-emerald-800">REKOR</div>
+                            <div class="text-xl font-extrabold text-emerald-600" id="gameHighScore">0</div>
+                        </div>
+                    </div>
+                </div>
+
+                <p class="text-slate-600 text-sm mb-4">
+                    Bantu siswa SD Negeri 3 Kelaten berlari dan melompati <strong>kerucut latihan (cone)</strong> serta mengumpulkan <strong>bintang sehat</strong>! Gunakan tombol <strong>LOMPAT</strong> di bawah layar atau tekan tombol <strong>SPASI / PANAH ATAS</strong>.
+                </p>
+
+                <!-- Area Game Canvas -->
+                <div class="relative rounded-3xl overflow-hidden border-4 border-purple-400 shadow-xl bg-sky-200">
+                    <canvas id="gameCanvas" class="w-full h-72 sm:h-80 block cursor-pointer"></canvas>
+
+                    <!-- Overlay Mulai / Game Over -->
+                    <div id="gameOverlay" class="absolute inset-0 bg-slate-900/60 backdrop-blur-sm flex flex-col items-center justify-center p-6 text-center text-white">
+                        <div class="text-5xl mb-3 animate-bounce">🏃‍♂️⭐</div>
+                        <h3 id="gameOverlayTitle" class="text-2xl sm:text-3xl font-bold mb-2">Siap Berlari & Melompat?</h3>
+                        <p id="gameOverlayDesc" class="text-sm sm:text-base text-sky-100 max-w-md mb-5">
+                            Lompati rintangan kerucut dengan 1x klik untuk <strong>Melompat</strong>, atau 2x klik di udara untuk <strong>Loncat Tinggi</strong>!
+                        </p>
+                        <button onclick="startGame()" class="btn-3d bg-emerald-500 hover:bg-emerald-600 text-white font-bold text-lg px-8 py-3.5 rounded-2xl shadow-lg">
+                            ▶️ Mulai Permainan
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Tombol Kontrol Sentuh / Mobile di Luar Canvas -->
+                <div class="mt-4 flex flex-col sm:flex-row items-center justify-center gap-4">
+                    <button onmousedown="triggerGameJump()" ontouchstart="triggerGameJump(event)" class="btn-3d w-full sm:w-auto bg-gradient-to-r from-amber-400 to-orange-500 hover:from-amber-500 hover:to-orange-600 text-white font-extrabold text-lg px-10 py-4 rounded-2xl shadow-lg flex items-center justify-center gap-2">
+                        <span>🦘</span> LOMPAT / LONCAT (SPASI)
+                    </button>
+                </div>
+
+                <div class="mt-6 flex justify-end">
+                    <button onclick="navigateTo('evaluasi')" class="btn-3d bg-purple-600 hover:bg-purple-700 text-white font-bold px-6 py-3 rounded-2xl">
+                        Lanjut ke Kuis Evaluasi ➡️
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- 6. HALAMAN KUIS EVALUASI & SERTIFIKAT -->
+        <section id="sec-evaluasi" class="page-section hidden space-y-6">
+            <div class="bg-white rounded-3xl p-6 sm:p-8 shadow-xl border-4 border-sky-400">
+                <div class="flex flex-wrap items-center justify-between gap-2 border-b-2 border-slate-100 pb-4 mb-6">
+                    <div>
+                        <span class="bg-sky-100 text-sky-800 text-xs font-extrabold px-3 py-1 rounded-full">EVALUASI PEMAHAMAN</span>
+                        <h2 class="text-2xl sm:text-3xl font-bold text-sky-800 mt-1">Kuis Petualangan Gerak Lokomotor</h2>
+                    </div>
+                    <div id="quizProgressBadge" class="bg-amber-100 text-amber-900 font-bold px-4 py-1.5 rounded-full text-sm">
+                        Soal 1 dari 5
+                    </div>
+                </div>
+
+                <!-- Container Soal Kuis -->
+                <div id="quizContainer" class="space-y-6">
+                    <div class="bg-sky-50 p-6 rounded-2xl border-2 border-sky-200">
+                        <p class="text-lg sm:text-xl font-bold text-slate-800" id="quizQuestionText">
+                            Memuat pertanyaan...
+                        </p>
+                    </div>
+
+                    <div id="quizOptions" class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <!-- Pilihan jawaban di-render via JS -->
+                    </div>
+
+                    <!-- Umpan Balik Jawaban -->
+                    <div id="quizFeedback" class="hidden p-4 rounded-2xl font-bold text-sm sm:text-base"></div>
+
+                    <div class="flex justify-end">
+                        <button id="btnNextQuestion" onclick="nextQuestion()" class="hidden btn-3d bg-sky-600 hover:bg-sky-700 text-white font-bold px-6 py-3 rounded-2xl">
+                            Soal Berikutnya ➡️
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Container Hasil Akhir & Piagam Penghargaan -->
+                <div id="quizResultContainer" class="hidden text-center space-y-6 py-4">
+                    <div class="inline-block p-4 bg-amber-100 rounded-full text-5xl animate-bounce">🏆</div>
+                    <h3 class="text-3xl font-bold text-sky-800">Selamat! Petualangan Selesai!</h3>
+                    
+                    <!-- Piagam / Sertifikat Mini -->
+                    <div class="max-w-xl mx-auto bg-gradient-to-br from-amber-50 via-white to-sky-50 p-6 sm:p-8 rounded-3xl border-4 border-amber-400 shadow-lg relative">
+                        <div class="text-xs font-extrabold tracking-widest text-amber-600 uppercase mb-1">Piagam Penghargaan PJOK</div>
+                        <h4 class="text-xl sm:text-2xl font-bold text-slate-800 mb-2">SD NEGERI 3 KELATEN</h4>
+                        <p class="text-sm text-slate-600">Diberikan kepada:</p>
+                        <div id="certStudentName" class="text-2xl sm:text-3xl font-extrabold text-sky-700 my-2 underline decoration-amber-400">
+                            Siswa Hebat Kelas III
+                        </div>
+                        <p class="text-sm text-slate-600 mb-4">
+                            Telah menyelesaikan pembelajaran interaktif <strong>"Petualangan Gerak Lokomotor"</strong> (Fase B) dengan nilai:
+                        </p>
+                        <div class="inline-block bg-emerald-500 text-white text-3xl sm:text-4xl font-extrabold px-8 py-3 rounded-2xl shadow mb-3">
+                            <span id="finalScoreText">100</span> / 100
+                        </div>
+                        <div id="starRating" class="text-2xl mb-3">⭐⭐⭐⭐⭐</div>
+                        <p id="resultMessage" class="text-sm font-bold text-emerald-700 mb-4">
+                            Luar biasa! Kamu sudah sangat paham gerak dasar lokomotor!
+                        </p>
+                        <div class="text-xs text-slate-500 border-t border-slate-200 pt-3 flex justify-between">
+                            <span>Guru Pengembang: Kamiyati, SE</span>
+                            <span>Kelas III SD • Fase B</span>
+                        </div>
+                    </div>
+
+                    <div class="flex flex-wrap justify-center gap-3 pt-2">
+                        <button onclick="restartQuiz()" class="btn-3d bg-amber-500 hover:bg-amber-600 text-white font-bold px-6 py-3 rounded-2xl">
+                            🔄 Ulangi Kuis
+                        </button>
+                        <button onclick="navigateTo('beranda')" class="btn-3d bg-sky-600 hover:bg-sky-700 text-white font-bold px-6 py-3 rounded-2xl">
+                            🏠 Kembali ke Beranda
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="bg-white/80 border-t-2 border-sky-200 py-4 px-4 text-center text-xs sm:text-sm text-slate-600 mt-8">
+        <p class="font-bold text-sky-800">MPI Petualangan Gerak Lokomotor • PJOK Kelas III SD (Fase B)</p>
+        <p>Dikembangkan oleh <strong>Kamiyati, SE</strong> • <strong>SD Negeri 3 Kelaten</strong></p>
+    </footer>
+
+    <!-- MODAL IDENTITAS MPI -->
+    <div id="infoModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-3xl max-w-lg w-full p-6 shadow-2xl border-4 border-sky-400 animate-pulse-slow" style="animation: none;">
+            <div class="flex items-center justify-between border-b-2 border-slate-100 pb-3 mb-4">
+                <h3 class="text-xl font-bold text-sky-800 flex items-center gap-2">
+                    <span>📋</span> Identitas Media Pembelajaran
+                </h3>
+                <button onclick="closeInfoModal()" class="w-8 h-8 rounded-full bg-slate-100 hover:bg-rose-100 text-slate-600 hover:text-rose-600 font-bold">✕</button>
+            </div>
+            <div class="space-y-2.5 text-sm">
+                <div class="flex justify-between bg-sky-50 p-2.5 rounded-xl">
+                    <span class="font-bold text-slate-600">Nama MPI:</span>
+                    <span class="font-extrabold text-sky-800">Petualangan Gerak Lokomotor</span>
+                </div>
+                <div class="flex justify-between bg-slate-50 p-2.5 rounded-xl">
+                    <span class="font-bold text-slate-600">Mata Pelajaran:</span>
+                    <span class="font-bold text-slate-800">PJOK (Pendidikan Jasmani, Olahraga & Kesehatan)</span>
+                </div>
+                <div class="flex justify-between bg-sky-50 p-2.5 rounded-xl">
+                    <span class="font-bold text-slate-600">Kelas / Fase:</span>
+                    <span class="font-bold text-slate-800">III SD / Fase B</span>
+                </div>
+                <div class="flex justify-between bg-slate-50 p-2.5 rounded-xl">
+                    <span class="font-bold text-slate-600">Materi Pokok:</span>
+                    <span class="font-bold text-slate-800">Gerak Dasar Lokomotor</span>
+                </div>
+                <div class="flex justify-between bg-sky-50 p-2.5 rounded-xl">
+                    <span class="font-bold text-slate-600">Sasaran:</span>
+                    <span class="font-bold text-slate-800">Siswa Sekolah Dasar</span>
+                </div>
+                <div class="flex justify-between bg-emerald-50 p-2.5 rounded-xl border border-emerald-200">
+                    <span class="font-bold text-emerald-800">Pengembang:</span>
+                    <span class="font-extrabold text-emerald-700">Kamiyati, SE</span>
+                </div>
+                <div class="flex justify-between bg-emerald-50 p-2.5 rounded-xl border border-emerald-200">
+                    <span class="font-bold text-emerald-800">Satuan Pendidikan:</span>
+                    <span class="font-extrabold text-emerald-700">SD Negeri 3 Kelaten</span>
+                </div>
+            </div>
+            <div class="mt-5 text-right">
+                <button onclick="closeInfoModal()" class="btn-3d bg-sky-500 hover:bg-sky-600 text-white font-bold px-6 py-2 rounded-xl">
+                    Tutup
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- TOAST NOTIFIKASI PENGGANTI ALERT -->
+    <div id="toastBox" class="fixed bottom-5 right-5 bg-slate-800 text-white px-5 py-3 rounded-2xl shadow-xl font-bold text-sm z-50 transform translate-y-24 opacity-0 transition-all duration-300">
+        Pesan notifikasi
+    </div>
+
+    <script>
+        /* =========================================================
+           1. MANAJEMEN STATE, AUDIO (TONE.JS), & NAVIGASI HALAMAN
+           ========================================================= */
+        let soundEnabled = true;
+        let synth = null;
+        let studentName = "";
+        let currentPage = 'beranda';
+
+        // Inisialisasi Sintesis Suara dengan Tone.js
+        function playTone(freq, duration = "16n", type = "sine") {
+            if (!soundEnabled) return;
+            try {
+                if (!synth) {
+                    synth = new Tone.Synth({
+                        oscillator: { type: type },
+                        envelope: { attack: 0.01, decay: 0.1, sustain: 0.1, release: 0.2 }
+                    }).toDestination();
+                }
+                if (Tone.context.state !== 'running') {
+                    Tone.start();
+                }
+                synth.triggerAttackRelease(freq, duration);
+            } catch (e) {
+                // Abaikan jika browser memblokir autoplay audio sebelum interaksi
+            }
+        }
+
+        function playSuccessSound() {
+            playTone("C5", "16n");
+            setTimeout(() => playTone("E5", "16n"), 100);
+            setTimeout(() => playTone("G5", "8n"), 200);
+        }
+
+        function playWrongSound() {
+            playTone("A3", "8n", "triangle");
+            setTimeout(() => playTone("F3", "8n", "triangle"), 150);
+        }
+
+        function playJumpSound() {
+            playTone("D4", "32n");
+            setTimeout(() => playTone("A4", "16n"), 50);
+        }
+
+        function toggleSound() {
+            soundEnabled = !soundEnabled;
+            document.getElementById('soundIcon').textContent = soundEnabled ? '🔊' : '🔇';
+            document.getElementById('soundLabel').textContent = soundEnabled ? 'Suara Aktif' : 'Suara Mati';
+            if (soundEnabled) playTone("C5", "16n");
+            showToast(soundEnabled ? "Efek suara diaktifkan 🔊" : "Efek suara dimatikan 🔇");
+        }
+
+        function showToast(msg) {
+            const toast = document.getElementById('toastBox');
+            toast.textContent = msg;
+            toast.classList.remove('translate-y-24', 'opacity-0');
+            setTimeout(() => {
+                toast.classList.add('translate-y-24', 'opacity-0');
+            }, 2500);
+        }
+
+        function saveStudentName() {
+            const input = document.getElementById('studentNameInput').value.trim();
+            if (!input) {
+                showToast("Ketik namamu dulu ya! 😊");
+                playWrongSound();
+                return;
+            }
+            studentName = input;
+            const greet = document.getElementById('greetingText');
+            greet.textContent = `🎉 Halo, ${studentName}! Selamat belajar & berpetualang!`;
+            greet.classList.remove('hidden');
+            playSuccessSound();
+            showToast(`Nama "${studentName}" tersimpan!`);
+        }
+
+        function navigateTo(pageId) {
+            playTone("E5", "32n");
+            currentPage = pageId;
+
+            // Sembunyikan semua section
+            document.querySelectorAll('.page-section').forEach(sec => sec.classList.add('hidden'));
+            // Tampilkan section tujuan
+            const target = document.getElementById(`sec-${pageId}`);
+            if (target) target.classList.remove('hidden');
+
+            // Update status aktif tombol navigasi
+            document.querySelectorAll('.nav-btn').forEach(btn => {
+                btn.classList.remove('bg-sky-600', 'text-white', 'shadow');
+                btn.classList.add('bg-white', 'text-sky-700');
+            });
+            const activeBtn = document.getElementById(`nav-${pageId}`);
+            if (activeBtn) {
+                activeBtn.classList.remove('bg-white', 'text-sky-700');
+                activeBtn.classList.add('bg-sky-600', 'text-white', 'shadow');
+            }
+
+            // Resize canvas saat halaman dibuka agar responsif
+            setTimeout(() => {
+                resizeAllCanvases();
+            }, 50);
+
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function openInfoModal() {
+            playTone("G5", "32n");
+            document.getElementById('infoModal').classList.remove('hidden');
+        }
+
+        function closeInfoModal() {
+            playTone("C5", "32n");
+            document.getElementById('infoModal').classList.add('hidden');
+        }
+
+        /* =========================================================
+           2. MODUL MATERI & ANIMASI GERAK DASAR
+           ========================================================= */
+        const materiData = {
+            jalan: {
+                badge: "GERAK DASAR 1",
+                title: "Berjalan (Walking)",
+                desc: "Berjalan adalah gerakan melangkahkan kaki secara bergantian dengan salah satu telapak kaki selalu menyentuh tanah.",
+                caption: "Animasi: Gerak Berjalan Tegak & Santai",
+                steps: [
+                    "Pandangan lurus ke depan dan posisi badan tegak.",
+                    "Langkahkan kaki kanan dan kiri secara bergantian.",
+                    "Ayunkan lengan berlawanan dengan langkah kaki secara alami.",
+                    "Tumit kaki menyentuh tanah terlebih dahulu."
+                ]
+            },
+            lari: {
+                badge: "GERAK DASAR 2",
+                title: "Berlari (Running)",
+                desc: "Berlari adalah gerakan melangkahkan kaki dengan cepat sehingga ada saat di mana kedua kaki melayang di udara secara bersamaan.",
+                caption: "Animasi: Gerak Berlari Cepat di Lintasan",
+                steps: [
+                    "Badan sedikit condong ke depan.",
+                    "Langkah kaki lebih cepat dan panjang daripada berjalan.",
+                    "Siku ditekuk sekitar 90 derajat dan diayun cepat.",
+                    "Tumpuan kaki menggunakan ujung telapak kaki depan."
+                ]
+            },
+            lompat: {
+                badge: "GERAK DASAR 3",
+                title: "Melompat (Jumping - 1 Kaki)",
+                desc: "Melompat adalah gerakan menolakkan tubuh ke depan atau ke atas dengan tumpuan SATU KAKI, lalu mendarat dengan dua kaki atau satu kaki.",
+                caption: "Animasi: Gerak Melompat (Tolakan 1 Kaki)",
+                steps: [
+                    "Ambil awalan dengan berjalan atau berlari pelan.",
+                    "Tolakkan tubuh menggunakan SATU KAKI terkuat.",
+                    "Ayunkan kedua lengan ke atas untuk membantu dorongan.",
+                    "Mendarat dengan kedua lutut sedikit mengeper (ditekuk)."
+                ]
+            },
+            loncat: {
+                badge: "GERAK DASAR 4",
+                title: "Meloncat (Hopping - 2 Kaki)",
+                desc: "Meloncat adalah gerakan mengangkat tubuh ke udara dengan tolakan DUA KAKI SECARA BERSAMAAN, seperti gerakan katak atau kelinci.",
+                caption: "Animasi: Gerak Meloncat (Tolakan 2 Kaki)",
+                steps: [
+                    "Berdiri dengan kedua kaki sejajar dan lutut sedikit ditekuk.",
+                    "Ayunkan kedua lengan ke belakang lalu ke depan atas.",
+                    "Tolakkan DUA KAKI secara bersamaan ke atas/depan.",
+                    "Mendarat kembali dengan kedua ujung kaki mengeper."
+                ]
+            }
+        };
+
+        let activeMateriType = 'jalan';
+        let materiPaused = false;
+        let materiFrame = 0;
+
+        function selectMateri(type) {
+            playTone("F5", "32n");
+            activeMateriType = type;
+            const data = materiData[type];
+
+            // Update tombol tab
+            document.querySelectorAll('.materi-tab').forEach(tab => {
+                tab.classList.remove('border-sky-500', 'bg-sky-500', 'text-white', 'shadow');
+                tab.classList.add('border-slate-200', 'bg-slate-50', 'text-slate-700');
+            });
+            const activeTab = document.getElementById(`tab-${type}`);
+            activeTab.classList.remove('border-slate-200', 'bg-slate-50', 'text-slate-700');
+            activeTab.classList.add('border-sky-500', 'bg-sky-500', 'text-white', 'shadow');
+
+            // Update teks materi
+            document.getElementById('materiBadge').textContent = data.badge;
+            document.getElementById('materiTitle').textContent = data.title;
+            document.getElementById('materiDesc').textContent = data.desc;
+            document.getElementById('animCaption').textContent = data.caption;
+
+            const stepsEl = document.getElementById('materiSteps');
+            stepsEl.innerHTML = data.steps.map(s => `<li>${s}</li>`).join('');
+        }
+
+        function toggleMateriPause() {
+            materiPaused = !materiPaused;
+            document.getElementById('btnPauseMateri').textContent = materiPaused ? "▶️ Lanjut Animasi" : "⏸️ Jeda Animasi";
+            playTone("C5", "32n");
+        }
+
+        /* =========================================================
+           3. FUNGSI MENGGAMBAR KARAKTER & ANIMASI CANVAS
+           ========================================================= */
+        function drawRunnerCharacter(ctx, x, y, phase, actionType, scale = 1) {
+            ctx.save();
+            ctx.translate(x, y);
+            ctx.scale(scale, scale);
+
+            let bodyY = 0;
+            let leftLegAngle = 0;
+            let rightLegAngle = 0;
+            let leftArmAngle = 0;
+            let rightArmAngle = 0;
+            let lean = 0;
+
+            if (actionType === 'diam') {
+                bodyY = Math.sin(phase * 0.05) * 2;
+                leftLegAngle = 0;
+                rightLegAngle = 0;
+                leftArmAngle = 0.1;
+                rightArmAngle = -0.1;
+            } else if (actionType === 'jalan') {
+                bodyY = Math.abs(Math.sin(phase * 0.1)) * -4;
+                leftLegAngle = Math.sin(phase * 0.1) * 0.45;
+                rightLegAngle = -Math.sin(phase * 0.1) * 0.45;
+                leftArmAngle = -Math.sin(phase * 0.1) * 0.4;
+                rightArmAngle = Math.sin(phase * 0.1) * 0.4;
+                lean = 0.05;
+            } else if (actionType === 'lari') {
+                bodyY = Math.abs(Math.sin(phase * 0.2)) * -10 - 3;
+                leftLegAngle = Math.sin(phase * 0.2) * 0.85;
+                rightLegAngle = -Math.sin(phase * 0.2) * 0.85;
+                leftArmAngle = -Math.sin(phase * 0.2) * 0.8;
+                rightArmAngle = Math.sin(phase * 0.2) * 0.8;
+                lean = 0.18;
+            } else if (actionType === 'lompat') {
+                // Siklus melompat 1 kaki
+                const cycle = (phase * 0.08) % (Math.PI * 2);
+                const jumpHeight = Math.max(0, Math.sin(cycle)) * 45;
+                bodyY = -jumpHeight;
+                if (jumpHeight > 5) {
+                    leftLegAngle = -0.6; // Satu kaki di depan
+                    rightLegAngle = 0.5; // Satu kaki di belakang
+                    leftArmAngle = -0.9;
+                    rightArmAngle = -0.6;
+                    lean = 0.15;
+                } else {
+                    leftLegAngle = 0.1;
+                    rightLegAngle = -0.1;
+                }
+            } else if (actionType === 'loncat') {
+                // Siklus meloncat 2 kaki bersamaan
+                const cycle = (phase * 0.08) % (Math.PI * 2);
+                const jumpHeight = Math.max(0, Math.sin(cycle)) * 45;
+                bodyY = -jumpHeight;
+                if (jumpHeight > 5) {
+                    leftLegAngle = -0.35; // Kedua kaki bersamaan
+                    rightLegAngle = -0.35;
+                    leftArmAngle = -1.1;
+                    rightArmAngle = -1.1;
+                } else {
+                    // Lutut mengeper
+                    bodyY = 5;
+                    leftLegAngle = 0.25;
+                    rightLegAngle = 0.25;
+                    leftArmAngle = 0.4;
+                    rightArmAngle = 0.4;
+                }
+            }
+
+            // Bayangan di tanah
+            ctx.fillStyle = "rgba(0,0,0,0.18)";
+            ctx.beginPath();
+            const shadowScale = Math.max(0.4, 1 + bodyY / 80);
+            ctx.ellipse(0, 48, 22 * shadowScale, 6 * shadowScale, 0, 0, Math.PI * 2);
+            ctx.fill();
+
+            ctx.translate(0, bodyY);
+            ctx.rotate(lean);
+
+            // Tangan Belakang (Kiri)
+            ctx.save();
+            ctx.translate(0, -12);
+            ctx.rotate(leftArmAngle);
+            ctx.strokeStyle = "#FDBA74";
+            ctx.lineWidth = 8;
+            ctx.lineCap = "round";
+            ctx.beginPath();
+            ctx.moveTo(0, 0);
+            ctx.lineTo(0, 24);
+            ctx.stroke();
+            ctx.restore();
+
+            // Kaki Belakang (Kiri)
+            ctx.save();
+            ctx.translate(-3, 14);
+            ctx.rotate(leftLegAngle);
+            ctx.strokeStyle = "#1E3A8A";
+            ctx.lineWidth = 10;
+            ctx.lineCap = "round";
+            ctx.beginPath();
+            ctx.moveTo(0, 0);
+            ctx.lineTo(0, 28);
+            ctx.stroke();
+            // Sepatu
+            ctx.fillStyle = "#EF4444";
+            ctx.beginPath();
+            ctx.ellipse(4, 30, 9, 5, 0, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.restore();
+
+            // Kaki Depan (Kanan)
+            ctx.save();
+            ctx.translate(3, 14);
+            ctx.rotate(rightLegAngle);
+            ctx.strokeStyle = "#2563EB";
+            ctx.lineWidth = 10;
+            ctx.lineCap = "round";
+            ctx.beginPath();
+            ctx.moveTo(0, 0);
+            ctx.lineTo(0, 28);
+            ctx.stroke();
+            // Sepatu
+            ctx.fillStyle = "#DC2626";
+            ctx.beginPath();
+            ctx.ellipse(4, 30, 9, 5, 0, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.restore();
+
+            // Badan / Seragam Olahraga SD (Merah Putih / Biru)
+            ctx.fillStyle = "#0284C7";
+            ctx.beginPath();
+            ctx.roundRect(-13, -18, 26, 36, 10);
+            ctx.fill();
+            // Garis Kaos
+            ctx.fillStyle = "#FBBF24";
+            ctx.fillRect(-13, -4, 26, 6);
+
+            // Kepala
+            ctx.fillStyle = "#FDBA74";
+            ctx.beginPath();
+            ctx.arc(0, -34, 16, 0, Math.PI * 2);
+            ctx.fill();
+
+            // Rambut
+            ctx.fillStyle = "#1E293B";
+            ctx.beginPath();
+            ctx.arc(0, -37, 16, Math.PI, 0);
+            ctx.fill();
+
+            // Ikat Kepala Merah
+            ctx.fillStyle = "#EF4444";
+            ctx.fillRect(-16, -40, 32, 4);
+
+            // Mata & Senyum (Menghadap Kanan)
+            ctx.fillStyle = "#1E293B";
+            ctx.beginPath();
+            ctx.arc(7, -34, 2.2, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.strokeStyle = "#1E293B";
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.arc(6, -29, 4, 0.1 * Math.PI, 0.8 * Math.PI);
+            ctx.stroke();
+
+            // Tangan Depan (Kanan)
+            ctx.save();
+            ctx.translate(0, -12);
+            ctx.rotate(rightArmAngle);
+            ctx.strokeStyle = "#FDBA74";
+            ctx.lineWidth = 8;
+            ctx.lineCap = "round";
+            ctx.beginPath();
+            ctx.moveTo(0, 0);
+            ctx.lineTo(0, 24);
+            ctx.stroke();
+            ctx.restore();
+
+            ctx.restore();
+        }
+
+        function renderMateriCanvas() {
+            const canvas = document.getElementById('materiCanvas');
+            if (!canvas || currentPage !== 'materi') return;
+            const ctx = canvas.getContext('2d');
+            const w = canvas.width;
+            const h = canvas.height;
+
+            ctx.clearRect(0, 0, w, h);
+
+            // Langit & Awan
+            ctx.fillStyle = "#E0F2FE";
+            ctx.fillRect(0, 0, w, h);
+
+            const bgSpeed = activeMateriType === 'lari' ? 4 : (activeMateriType === 'jalan' ? 1.5 : 2.5);
+            const offset = (materiFrame * bgSpeed) % w;
+
+            // Awan bergerak
+            ctx.fillStyle = "rgba(255,255,255,0.8)";
+            ctx.beginPath();
+            ctx.arc(w - offset, 45, 20, 0, Math.PI * 2);
+            ctx.arc(w - offset + 20, 45, 25, 0, Math.PI * 2);
+            ctx.arc(w - offset + 45, 45, 18, 0, Math.PI * 2);
+            ctx.fill();
+
+            // Rumput & Lintasan
+            ctx.fillStyle = "#86EFAC";
+            ctx.fillRect(0, h - 65, w, 65);
+            ctx.fillStyle = "#FDBA74";
+            ctx.fillRect(0, h - 45, w, 35);
+
+            // Garis Lintasan bergerak
+            ctx.strokeStyle = "#FFFFFF";
+            ctx.lineWidth = 3;
+            ctx.setLineDash([20, 20]);
+            ctx.lineDashOffset = materiFrame * bgSpeed;
+            ctx.beginPath();
+            ctx.moveTo(0, h - 27);
+            ctx.lineTo(w, h - 27);
+            ctx.stroke();
+            ctx.setLineDash([]);
+
+            // Rintangan kecil khusus untuk visual lompat/loncat
+            if (activeMateriType === 'lompat' || activeMateriType === 'loncat') {
+                const cycle = (materiFrame * 0.08) % (Math.PI * 2);
+                // Gambar kerucut kecil di bawah saat karakter melayang
+                if (Math.sin(cycle) > 0.2) {
+                    ctx.fillStyle = "#F97316";
+                    ctx.beginPath();
+                    ctx.moveTo(w / 2 - 12, h - 32);
+                    ctx.lineTo(w / 2, h - 55);
+                    ctx.lineTo(w / 2 + 12, h - 32);
+                    ctx.closePath();
+                    ctx.fill();
+                }
+            }
+
+            // Gambar Karakter di Tengah
+            drawRunnerCharacter(ctx, w / 2, h - 80, materiFrame, activeMateriType, 1.15);
+
+            if (!materiPaused) {
+                materiFrame++;
+            }
+        }
+
+        /* =========================================================
+           4. SIMULASI LINTASAN INTERAKTIF
+           ========================================================= */
+        let simAction = 'jalan';
+        let simFrame = 0;
+        let simDistanceMeters = 0;
+
+        const simInfo = {
+            diam: {
+                status: "Berdiri Siap (Tidak Berpindah Tempat)",
+                exp: "💡 Analisis Gerak: Posisi tubuh diam di tempat (belum terjadi gerak lokomotor karena tidak berpindah tempat)."
+            },
+            jalan: {
+                status: "Berjalan (1 Kaki Selalu di Tanah)",
+                exp: "💡 Analisis Gerak: Saat berjalan, salah satu telapak kaki selalu menapak pada lintasan sebelum kaki lainnya diangkat."
+            },
+            lari: {
+                status: "Berlari Cepat (Ada Fase Melayang)",
+                exp: "💡 Analisis Gerak: Kecepatan meningkat! Ada saat kedua kaki tidak menyentuh tanah secara bersamaan."
+            },
+            lompat: {
+                status: "Melompat (Tolakan 1 Kaki)",
+                exp: "💡 Analisis Gerak: Karakter menolakkan tubuh ke depan atas menggunakan SATU KAKI terkuat sebagai tumpuan."
+            },
+            loncat: {
+                status: "Meloncat (Tolakan 2 Kaki Bersamaan)",
+                exp: "💡 Analisis Gerak: Karakter menolakkan tubuh ke atas menggunakan DUA KAKI secara bersamaan."
+            }
+        };
+
+        function setSimAction(action) {
+            playTone("G5", "32n");
+            simAction = action;
+            document.getElementById('simStatusText').textContent = simInfo[action].status;
+            document.getElementById('simExplanation').innerHTML = simInfo[action].exp;
+        }
+
+        function resetSimDistance() {
+            playTone("C5", "32n");
+            simDistanceMeters = 0;
+            document.getElementById('simDistance').textContent = "0";
+        }
+
+        function renderSimCanvas() {
+            const canvas = document.getElementById('simCanvas');
+            if (!canvas || currentPage !== 'simulasi') return;
+            const ctx = canvas.getContext('2d');
+            const w = canvas.width;
+            const h = canvas.height;
+
+            let speed = 0;
+            if (simAction === 'jalan') speed = 2;
+            else if (simAction === 'lari') speed = 5.5;
+            else if (simAction === 'lompat' || simAction === 'loncat') speed = 3;
+
+            simDistanceMeters += speed * 0.02;
+            document.getElementById('simDistance').textContent = Math.floor(simDistanceMeters);
+
+            // Latar Langit
+            const grad = ctx.createLinearGradient(0, 0, 0, h);
+            grad.addColorStop(0, "#7DD3FC");
+            grad.addColorStop(1, "#E0F2FE");
+            ctx.fillStyle = grad;
+            ctx.fillRect(0, 0, w, h);
+
+            // Bukit di latar belakang (Parallax)
+            ctx.fillStyle = "#34D399";
+            const hillOffset = (simFrame * speed * 0.3) % 400;
+            for (let i = -1; i < w / 200 + 2; i++) {
+                ctx.beginPath();
+                ctx.arc(i * 250 - hillOffset, h - 75, 130, Math.PI, 0);
+                ctx.fill();
+            }
+
+            // Lintasan Lari Atletik
+            ctx.fillStyle = "#10B981";
+            ctx.fillRect(0, h - 85, w, 85);
+            ctx.fillStyle = "#FB7185"; // Warna lintasan lari merah bata
+            ctx.fillRect(0, h - 65, w, 50);
+
+            // Garis lintasan putih
+            ctx.fillStyle = "#FFFFFF";
+            ctx.fillRect(0, h - 65, w, 4);
+            ctx.fillRect(0, h - 15, w, 4);
+
+            // Penanda jarak setiap 10 meter
+            const markerOffset = (simFrame * speed * 2) % 200;
+            ctx.fillStyle = "#FFFFFF";
+            ctx.font = "bold 12px Nunito";
+            for (let x = w - markerOffset; x > -50; x -= 200) {
+                ctx.fillRect(x, h - 65, 4, 50);
+            }
+
+            // Karakter Siswa
+            drawRunnerCharacter(ctx, w * 0.3, h - 90, simFrame, simAction, 1.25);
+
+            simFrame++;
+        }
+
+        /* =========================================================
+           5. GIM PETUALANGAN LARI & LOMPAT RINTANGAN
+           ========================================================= */
+        let gameRunning = false;
+        let gameScore = 0;
+        let gameHighScore = 0;
+        let gameFrame = 0;
+        let playerY = 0;
+        let playerVy = 0;
+        let jumpCount = 0;
+        const gravity = 0.65;
+        let obstacles = [];
+        let stars = [];
+
+        function startGame() {
+            playSuccessSound();
+            document.getElementById('gameOverlay').classList.add('hidden');
+            gameRunning = true;
+            gameScore = 0;
+            gameFrame = 0;
+            playerY = 0;
+            playerVy = 0;
+            jumpCount = 0;
+            obstacles = [];
+            stars = [];
+            document.getElementById('gameScore').textContent = "0";
+        }
+
+        function triggerGameJump(e) {
+            if (e) e.preventDefault();
+            if (!gameRunning) return;
+            if (jumpCount < 2) {
+                playerVy = -12.5;
+                jumpCount++;
+                playJumpSound();
+            }
+        }
+
+        // Kontrol Keyboard Spasi / Panah Atas untuk Game
+        window.addEventListener('keydown', (e) => {
+            if (currentPage === 'permainan' && (e.code === 'Space' || e.code === 'ArrowUp')) {
+                e.preventDefault();
+                if (!gameRunning && !document.getElementById('gameOverlay').classList.contains('hidden')) {
+                    startGame();
+                } else {
+                    triggerGameJump();
+                }
+            }
+        });
+
+        function renderGameCanvas() {
+            const canvas = document.getElementById('gameCanvas');
+            if (!canvas || currentPage !== 'permainan') return;
+            const ctx = canvas.getContext('2d');
+            const w = canvas.width;
+            const h = canvas.height;
+            const groundY = h - 55;
+
+            // Latar Langit Ceria
+            ctx.fillStyle = "#BAE6FD";
+            ctx.fillRect(0, 0, w, h);
+
+            // Matahari
+            ctx.fillStyle = "#FBBF24";
+            ctx.beginPath();
+            ctx.arc(w - 60, 50, 26, 0, Math.PI * 2);
+            ctx.fill();
+
+            // Tanah & Rumput
+            ctx.fillStyle = "#22C55E";
+            ctx.fillRect(0, groundY, w, 55);
+            ctx.fillStyle = "#15803D";
+            ctx.fillRect(0, groundY, w, 8);
+
+            if (!gameRunning) {
+                // Tampilkan karakter berdiri siap sebelum mulai
+                drawRunnerCharacter(ctx, 90, groundY - 48, gameFrame, 'diam', 1.1);
+                gameFrame++;
+                return;
+            }
+
+            // Fisika Lompat Pemain
+            playerY += playerVy;
+            if (playerY < 0) {
+                playerVy += gravity;
+            } else {
+                playerY = 0;
+                playerVy = 0;
+                jumpCount = 0;
+            }
+
+            const gameSpeed = 5 + Math.min(5, Math.floor(gameScore / 50));
+
+            // Spawn Rintangan Kerucut (Cone)
+            if (gameFrame % Math.max(65, 110 - Math.floor(gameScore / 10)) === 0) {
+                obstacles.push({
+                    x: w + 30,
+                    width: 28,
+                    height: 36
+                });
+            }
+
+            // Spawn Bintang Sehat
+            if (gameFrame % 85 === 40) {
+                stars.push({
+                    x: w + 30,
+                    y: groundY - 75 - Math.random() * 55,
+                    collected: false
+                });
+            }
+
+            // Update & Gambar Rintangan
+            for (let i = obstacles.length - 1; i >= 0; i--) {
+                let obs = obstacles[i];
+                obs.x -= gameSpeed;
+
+                // Gambar Kerucut Oranye
+                ctx.fillStyle = "#F97316";
+                ctx.beginPath();
+                ctx.moveTo(obs.x, groundY);
+                ctx.lineTo(obs.x + obs.width / 2, groundY - obs.height);
+                ctx.lineTo(obs.x + obs.width, groundY);
+                ctx.closePath();
+                ctx.fill();
+
+                // Garis Putih di Kerucut
+                ctx.fillStyle = "#FFFFFF";
+                ctx.fillRect(obs.x + 7, groundY - 18, obs.width - 14, 5);
+
+                // Cek Tabrakan (Hitbox ramah anak)
+                const playerBox = { x: 75, y: groundY - 75 + playerY, w: 26, h: 65 };
+                if (
+                    playerBox.x < obs.x + obs.width - 6 &&
+                    playerBox.x + playerBox.w > obs.x + 6 &&
+                    playerBox.y + playerBox.h > groundY - obs.height + 6
+                ) {
+                    // Game Over
+                    gameRunning = false;
+                    playWrongSound();
+                    if (gameScore > gameHighScore) {
+                        gameHighScore = gameScore;
+                        document.getElementById('gameHighScore').textContent = gameHighScore;
+                    }
+                    document.getElementById('gameOverlayTitle').textContent = `Wah, Menabrak Kerucut! Skor: ${gameScore}`;
+                    document.getElementById('gameOverlayDesc').textContent = "Ayo coba lagi! Lompati kerucut dengan tepat waktu ya!";
+                    document.getElementById('gameOverlay').classList.remove('hidden');
+                }
+
+                if (obs.x < -50) {
+                    obstacles.splice(i, 1);
+                    gameScore += 10;
+                    document.getElementById('gameScore').textContent = gameScore;
+                }
+            }
+
+            // Update & Gambar Bintang
+            for (let i = stars.length - 1; i >= 0; i--) {
+                let st = stars[i];
+                st.x -= gameSpeed;
+
+                if (!st.collected) {
+                    ctx.font = "26px Arial";
+                    ctx.fillText("⭐", st.x, st.y);
+
+                    // Ambil Bintang
+                    const dist = Math.hypot(90 - (st.x + 12), (groundY - 45 + playerY) - (st.y - 10));
+                    if (dist < 42) {
+                        st.collected = true;
+                        gameScore += 20;
+                        document.getElementById('gameScore').textContent = gameScore;
+                        playTone("B5", "16n");
+                    }
+                }
+
+                if (st.x < -40) stars.splice(i, 1);
+            }
+
+            // Gambar Karakter Pemain
+            const animMode = playerY < 0 ? (jumpCount === 2 ? 'loncat' : 'lompat') : 'lari';
+            drawRunnerCharacter(ctx, 90, groundY - 48 + playerY, gameFrame, animMode, 1.1);
+
+            gameFrame++;
+        }
+
+        /* =========================================================
+           6. MODUL KUIS EVALUASI INTERAKTIF (5 SOAL)
+           ========================================================= */
+        const quizQuestions = [
+            {
+                q: "1. Gerakan tubuh yang ditandai dengan adanya perpindahan tempat dari satu titik ke titik lainnya disebut gerak dasar ....",
+                options: ["A. Non-lokomotor", "B. Lokomotor", "C. Manipulatif", "D. Keseimbangan"],
+                correct: 1,
+                explanation: "Benar! Gerak lokomotor adalah gerak berpindah tempat, seperti berjalan, berlari, dan melompat."
+            },
+            {
+                q: "2. Berikut ini yang merupakan contoh gerak dasar lokomotor adalah ....",
+                options: ["A. Mengayun lengan di tempat", "B. Membungkukkan badan", "C. Berlari dan melompat", "D. Memutar kepala"],
+                correct: 2,
+                explanation: "Tepat sekali! Berlari dan melompat membuat tubuh kita berpindah tempat."
+            },
+            {
+                q: "3. Apa perbedaan utama antara gerakan MELOMPAT dan MELONCAT?",
+                options: [
+                    "A. Melompat memakai 1 kaki tumpuan, meloncat memakai 2 kaki",
+                    "B. Melompat di tempat, meloncat ke belakang",
+                    "C. Melompat memakai tangan, meloncat memakai kepala",
+                    "D. Tidak ada perbedaannya"
+                ],
+                correct: 0,
+                explanation: "Hebat! Melompat bertumpu dengan 1 kaki, sedangkan meloncat bertumpu dengan 2 kaki bersamaan."
+            },
+            {
+                q: "4. Saat melakukan gerak berjalan dengan benar, pandangan mata sebaiknya diarahkan ke ....",
+                options: ["A. Bawah melihat sepatu", "B. Samping kiri dan kanan", "C. Lurus ke depan", "D. Atas melihat langit"],
+                correct: 2,
+                explanation: "Betul! Pandangan lurus ke depan menjaga keseimbangan dan keamanan saat berjalan."
+            },
+            {
+                q: "5. Gerakan menirukan katak berpindah tempat dengan tolakan dua kaki secara bersamaan disebut ....",
+                options: ["A. Berjalan santai", "B. Berlari cepat", "C. Meloncat", "D. Berguling"],
+                correct: 2,
+                explanation: "Luar biasa! Loncat katak menggunakan tolakan dua kaki bersamaan sehingga termasuk gerak meloncat."
+            }
+        ];
+
+        let currentQuizIdx = 0;
+        let quizScore = 0;
+        let questionAnswered = false;
+
+        function loadQuizQuestion() {
+            questionAnswered = false;
+            const item = quizQuestions[currentQuizIdx];
+            document.getElementById('quizProgressBadge').textContent = `Soal ${currentQuizIdx + 1} dari ${quizQuestions.length}`;
+            document.getElementById('quizQuestionText').textContent = item.q;
+            document.getElementById('quizFeedback').classList.add('hidden');
+            document.getElementById('btnNextQuestion').classList.add('hidden');
+
+            const optionsBox = document.getElementById('quizOptions');
+            optionsBox.innerHTML = "";
+
+            item.options.forEach((opt, idx) => {
+                const btn = document.createElement('button');
+                btn.className = "quiz-opt-btn text-left p-4 rounded-2xl border-2 border-slate-200 bg-slate-50 hover:bg-sky-50 hover:border-sky-400 font-bold text-slate-700 transition";
+                btn.textContent = opt;
+                btn.onclick = () => selectQuizAnswer(idx, btn);
+                optionsBox.appendChild(btn);
+            });
+        }
+
+        function selectQuizAnswer(selectedIdx, btnElement) {
+            if (questionAnswered) return;
+            questionAnswered = true;
+
+            const item = quizQuestions[currentQuizIdx];
+            const feedbackEl = document.getElementById('quizFeedback');
+            const allBtns = document.querySelectorAll('.quiz-opt-btn');
+
+            allBtns.forEach((b, i) => {
+                b.disabled = true;
+                if (i === item.correct) {
+                    b.classList.remove('bg-slate-50', 'border-slate-200');
+                    b.classList.add('bg-emerald-100', 'border-emerald-500', 'text-emerald-900');
+                }
+            });
+
+            if (selectedIdx === item.correct) {
+                quizScore += 20;
+                playSuccessSound();
+                feedbackEl.className = "p-4 rounded-2xl font-bold text-sm sm:text-base bg-emerald-100 text-emerald-800 border-2 border-emerald-400";
+                feedbackEl.textContent = "🎉 " + item.explanation;
+            } else {
+                playWrongSound();
+                btnElement.classList.remove('bg-slate-50', 'border-slate-200');
+                btnElement.classList.add('bg-rose-100', 'border-rose-500', 'text-rose-900');
+                feedbackEl.className = "p-4 rounded-2xl font-bold text-sm sm:text-base bg-rose-100 text-rose-800 border-2 border-rose-400";
+                feedbackEl.textContent = "💡 Kurang tepat. " + item.explanation;
+            }
+
+            feedbackEl.classList.remove('hidden');
+            const nextBtn = document.getElementById('btnNextQuestion');
+            nextBtn.textContent = currentQuizIdx < quizQuestions.length - 1 ? "Soal Berikutnya ➡️" : "Lihat Hasil & Piagam 🏆";
+            nextBtn.classList.remove('hidden');
+        }
+
+        function nextQuestion() {
+            playTone("E5", "32n");
+            currentQuizIdx++;
+            if (currentQuizIdx < quizQuestions.length) {
+                loadQuizQuestion();
+            } else {
+                showQuizResult();
+            }
+        }
+
+        function showQuizResult() {
+            playSuccessSound();
+            document.getElementById('quizContainer').classList.add('hidden');
+            document.getElementById('quizProgressBadge').textContent = "Evaluasi Selesai!";
+            const resultBox = document.getElementById('quizResultContainer');
+            resultBox.classList.remove('hidden');
+
+            const finalName = studentName || "Siswa Hebat Kelas III SD";
+            document.getElementById('certStudentName').textContent = finalName;
+            document.getElementById('finalScoreText').textContent = quizScore;
+
+            let stars = "⭐⭐⭐";
+            let msg = "Bagus! Terus berlatih gerak lokomotor agar makin mahir!";
+            if (quizScore === 100) {
+                stars = "⭐⭐⭐⭐⭐";
+                msg = "Sempurna! Kamu Juara Petualangan Gerak Lokomotor SD Negeri 3 Kelaten!";
+            } else if (quizScore >= 80) {
+                stars = "⭐⭐⭐⭐";
+                msg = "Hebat sekali! Pemahamanmu tentang gerak lokomotor sangat baik!";
+            }
+            document.getElementById('starRating').textContent = stars;
+            document.getElementById('resultMessage').textContent = msg;
+        }
+
+        function restartQuiz() {
+            playTone("C5", "32n");
+            currentQuizIdx = 0;
+            quizScore = 0;
+            document.getElementById('quizResultContainer').classList.add('hidden');
+            document.getElementById('quizContainer').classList.remove('hidden');
+            loadQuizQuestion();
+        }
+
+        /* =========================================================
+           7. RESPONSIVE CANVAS & LOOP ANIMASI UTAMA
+           ========================================================= */
+        function resizeAllCanvases() {
+            ['materiCanvas', 'simCanvas', 'gameCanvas'].forEach(id => {
+                const canvas = document.getElementById(id);
+                if (canvas && canvas.parentElement) {
+                    const rect = canvas.getBoundingClientRect();
+                    if (rect.width > 0 && rect.height > 0) {
+                        canvas.width = rect.width;
+                        canvas.height = rect.height;
+                    }
+                }
+            });
+        }
+
+        function mainAnimationLoop() {
+            renderMateriCanvas();
+            renderSimCanvas();
+            renderGameCanvas();
+            requestAnimationFrame(mainAnimationLoop);
+        }
+
+        window.addEventListener('resize', resizeAllCanvases);
+
+        window.onload = function () {
+            resizeAllCanvases();
+            loadQuizQuestion();
+            mainAnimationLoop();
+        };
+    </script>
+</body>
+</html>
